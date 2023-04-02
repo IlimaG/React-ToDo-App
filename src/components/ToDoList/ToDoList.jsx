@@ -1,97 +1,85 @@
-import { useContext, useEffect, useState } from 'react'
-import { ToDoContext } from '../../context/ToDoContext'
-import Card from '../Card/Card'
-import './ToDoList.css'
-
-const ToDoList = () => {
-    const { toDoList, setToDoList, copyToDoList, setCopyToDoList} = useContext(ToDoContext)
-    const [taskList, setTaskList] = useState([])
-    const [isDoneToDO, setIsDoneToDO] = useState(true)
-
-    useEffect(() => {
+import { useState } from "react";
+import TodoForm from "../TodoForm/TodoForm";
+import TodoItem from "../TodoItem/TodoItem";
 
 
-        let list = toDoList.map((task) => {
-
-            let isDone = task.done ? 'done' : '';
-            
-            return (
-                <div key={`${task.id.id}`}>
-                    <div>
-                        <button onClick={() => subtract(task.id.id)}>DELETE</button>
-                        <button onClick={() => done(task.id.id)}>DONE</button>
-                    </div>
-                    <div>
-                        <Card
-                            text={`${task.text.tasks}`}
-                            classname={isDone}
-                            date={task.date.dayTimeStr}
-                            priority={task.priority.priorityTask}
-                            label={task.label.labels}
-                        />
-                    </div>
-                </div>
-            )
-        })
-
-        setTaskList(list)
-    }, [isDoneToDO, toDoList])
 
 
-    const subtract = (id) => {
-        const subtactTodo = toDoList.filter((e) => {
-            return e.id.id !== id
-        })
-        
-        const subtactCopy = copyToDoList.filter((e) => {
-            return e.id.id !== id
-        })
-        
-        setCopyToDoList(subtactCopy)
-        setToDoList(subtactTodo)
+const TodoList = () => {
+  const [todos, setTodos] = useState([]);
+  const [filter, setFilter] = useState('default');
+
+  const addTodo = (todo) => {
+    setTodos([...todos, todo]);
+  };
+
+  const deleteTodo = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  const toggleComplete = (id) => {
+    setTodos(
+      todos.map((todo) => {
+        if (todo.id === id) {
+          return { ...todo, completed: !todo.completed };
+        } else {
+          return todo;
+        }
+      })
+    );
+  };
+
+  const editTodo = (id, text) => {
+    setTodos(
+      todos.map((todo) => {
+        if (todo.id === id) {
+          return { ...todo, text };
+        } else {
+          return todo;
+        }
+      })
+    );
+  };
+
+  const filterTodos = () => {
+    switch (filter) {
+      case 'date':
+        return [...todos].sort((a, b) => b.date - a.date);
+      case 'importance':
+        return [...todos].sort((a, b) => a.importance - b.importance);
+      case 'label':
+        return [...todos].sort((a, b) => a.label.localeCompare(b.label));
+      case 'alphabetical':
+        return [...todos].sort((a, b) => a.text.localeCompare(b.text));
+      default:
+        return todos;
     }
+  };
+
+  return (
+    <>
+      <TodoForm addTodo={addTodo} />
+      <select onChange={(e) => setFilter(e.target.value)}>
+        <option value="default">Default</option>
+        <option value="date">Date</option>
+        <option value="importance">Importance</option>
+        <option value="label">Label</option>
+        <option value="alphabetical">Alphabetical</option>
+      </select>
+      <ul>
+        {filterTodos().map((todo) => (
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            deleteTodo={deleteTodo}
+            toggleComplete={toggleComplete}
+            editTodo={editTodo}
+          />
+        ))}
+      </ul>
+    </>
+  );
+};
 
 
-    const done = (id) => {
-
-        toDoList.forEach((e) => {
-            if (e.id.id === id) {
-
-                if (e.done === false) {
-                    e.done = true
-                    copyToDoList[copyToDoList.indexOf(e)].done = true
-                } else {
-                    e.done = false
-                }
-            }
-        })
-    
-        setIsDoneToDO(!isDoneToDO)
-    }
-
-
-    return (
-        <div>
-            {taskList}
-        </div>
-    )
-}
-
-export default ToDoList
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default TodoList

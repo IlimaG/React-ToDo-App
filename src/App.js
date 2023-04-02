@@ -1,16 +1,11 @@
+
 import './App.css';
-import { ToDoListContextProvider } from './context/ToDoContext';
-import ToDoPage from './pages/ToDoPage';
-
-
-
+import TodoList from './components/TodoList/TodoList';
 
 function App() {
   return (
     <div className="App">
-      <ToDoListContextProvider>
-        <ToDoPage />
-      </ToDoListContextProvider>
+     <TodoList />
     </div>
   );
 }
